@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>دردشة الفيديو</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="chat-container">
+    <video id="localVideo" autoplay muted></video>
+    <div class="chat-box">
+      <div id="messages"></div>
+      <input type="text" id="messageInput" placeholder="اكتب رسالة...">
+      <button id="sendBtn">📨</button>
+      <button id="giftBtn">🎁 إرسال هدية</button>
+      <button id="nextBtn">➡️ التالي</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const localVideo = document.getElementById("localVideo");
+    const messageInput = document.getElementById("messageInput");
+    const messages = document.getElementById("messages");
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        localVideo.srcObject = stream;
+        socket.emit("join");
+      })
+      .catch(err => {
+        alert("فشل في الوصول إلى الكاميرا: " + err);
+      });
+
+    document.getElementById("sendBtn").onclick = () => {
+      const msg = messageInput.value.trim();
+      if (msg) {
+        socket.emit("message", msg);
+        messages.innerHTML += `<div class="my-msg">${msg}</div>`;
+        messageInput.value = "";
+      }
+    };
+
+    document.getElementById("giftBtn").onclick = () => {
+      const gift = "🎁 هدية جميلة!";
+      socket.emit("message", gift);
+      messages.innerHTML += `<div class="my-msg">${gift}</div>`;
+    };
+
+    document.getElementById("nextBtn").onclick = () => {
+      window.location.reload(); // تبديل المستخدم بطريقة مبسطة
+    };
+
+    socket.on("message", msg => {
+      messages.innerHTML += `<div class="other-msg">${msg}</div>`;
+    });
+  </script>
+</body>
+  </html>
