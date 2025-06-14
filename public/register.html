@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>إنشاء حساب</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>إنشاء حساب</h2>
+    <form id="registerForm">
+      <input type="text" id="firstName" placeholder="الاسم" required /><br>
+      <input type="text" id="lastName" placeholder="اللقب" required /><br>
+      <input type="email" id="email" placeholder="البريد الإلكتروني" required /><br>
+      <input type="password" id="password" placeholder="كلمة السر" required /><br>
+      <input type="password" id="confirmPassword" placeholder="تأكيد كلمة السر" required /><br>
+      <button type="submit">تسجيل</button>
+    </form>
+    <p>لديك حساب؟ <a href="login.html">دخول</a></p>
+  </div>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const firstName = document.getElementById("firstName").value;
+      const lastName = document.getElementById("lastName").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (password !== confirmPassword) {
+        alert("كلمتا السر غير متطابقتين");
+        return;
+      }
+
+      const res = await fetch("/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstName, lastName, email, password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        alert("تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن.");
+        window.location.href = "login.html";
+      } else {
+        alert("فشل في إنشاء الحساب: " + (data.message || "تحقق من البيانات"));
+      }
+    });
+  </script>
+</body>
+</html>
